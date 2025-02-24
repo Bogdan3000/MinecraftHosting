@@ -12,7 +12,7 @@ app = FastAPI()
 # Разрешаем CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Лучше указывать конкретный домен
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -26,9 +26,10 @@ RCON_PASSWORD = "Bogdan3000"
 # Директория сервера и логов
 SERVER_DIR = "server"
 LOG_FILE = os.path.join(SERVER_DIR, "logs", "latest.log")
+FILEBROWSER_PATH = os.path.join('.', "filebrowser.exe")
 
-server_process = None  # Переменная для хранения процесса сервера
-
+server_process = None
+filebrowser_process = None
 
 def send_command(command: str):
     """Отправляет команду через RCON"""
@@ -36,9 +37,31 @@ def send_command(command: str):
         with MCRcon(RCON_HOST, RCON_PASSWORD, RCON_PORT) as mcr:
             return mcr.command(command)
     except Exception as e:
-        return str(e)
+        return str("Скорее всего сервер не запущен или возникла проблема связи с сервером")
 
+def start_filebrowser():
+    global filebrowser_process
+    if filebrowser_process is None:
+        filebrowser_process = subprocess.Popen(
+            [FILEBROWSER_PATH, "-p", "8001"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        print(filebrowser_process.args)
 
+@app.on_event("startup")
+async def startup_event():
+    """Автоматически запускает FileBrowser при старте FastAPI"""
+    start_filebrowser()
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Останавливает FileBrowser при завершении FastAPI"""
+    global filebrowser_process
+    if filebrowser_process:
+        filebrowser_process.terminate()
+        filebrowser_process.wait()
+        filebrowser_process = None
 @app.get("/")
 async def get_index():
     return FileResponse("frontend/index.html")
