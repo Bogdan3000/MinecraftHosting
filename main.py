@@ -1,17 +1,18 @@
 import subprocess
 import os
-
-from fastapi import FastAPI
+import time
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from mcrcon import MCRcon
 
 app = FastAPI()
 
-# Разрешаем CORS, чтобы фронтенд мог отправлять запросы
+# Разрешаем CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Лучше указать конкретный домен фронтенда
+    allow_origins=["*"],  # Лучше указывать конкретный домен
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -22,18 +23,18 @@ RCON_HOST = "127.0.0.1"
 RCON_PORT = 25575
 RCON_PASSWORD = "Bogdan3000"
 
-# Файл логов
-LOG_FILE = r"server\logs\latest.log"  # Укажи правильный путь
+# Директория сервера и логов
+SERVER_DIR = "server"
+LOG_FILE = os.path.join(SERVER_DIR, "logs", "latest.log")
 
 server_process = None  # Переменная для хранения процесса сервера
 
 
 def send_command(command: str):
-    """Отправляет команду через RCON и возвращает ответ"""
+    """Отправляет команду через RCON"""
     try:
         with MCRcon(RCON_HOST, RCON_PASSWORD, RCON_PORT) as mcr:
-            response = mcr.command(command)
-            return response
+            return mcr.command(command)
     except Exception as e:
         return str(e)
 
@@ -45,39 +46,32 @@ async def get_index():
 
 @app.post("/start")
 async def start_server():
-    """Запускает сервер в новом окне"""
+    """Запускает сервер"""
     global server_process
     if server_process is None:
         server_process = subprocess.Popen(
             [r"server\CustomJAVA\bin\java.exe", "-Xmx1024M", "-Xmx1024M", "-jar", "server.jar", "nogui"],
-            cwd="server",
-            creationflags=subprocess.CREATE_NEW_CONSOLE  # Открывает в новом окне (Windows)
+            cwd=SERVER_DIR,
+            creationflags=subprocess.CREATE_NEW_CONSOLE
         )
-        return JSONResponse(content={"status": "Сервер запущен в новом окне"})
-    else:
-        return JSONResponse(content={"status": "Сервер уже работает"}, status_code=400)
+        return JSONResponse({"status": "Сервер запущен"})
+    return JSONResponse({"status": "Сервер уже работает"}, status_code=400)
 
-
-import time
 
 @app.post("/stop")
 async def stop_server():
-    """Останавливает сервер через RCON и удаляет логи"""
+    """Останавливает сервер и удаляет логи"""
     global server_process
-    try:
-        if server_process:
-            send_command("stop")
-            server_process.terminate()
-            server_process.wait()
-            server_process = None
-            time.sleep(2)
-            if os.path.exists(LOG_FILE):
-                os.remove(LOG_FILE)
-            return JSONResponse(content={"status": "Сервер выключен, логи удалены"})
-        else:
-            return JSONResponse(content={"status": "Сервер не запущен"}, status_code=400)
-    except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+    if server_process:
+        send_command("stop")
+        server_process.terminate()
+        server_process.wait()
+        server_process = None
+        time.sleep(2)
+        if os.path.exists(LOG_FILE):
+            os.remove(LOG_FILE)
+        return JSONResponse({"status": "Сервер выключен, логи удалены"})
+    return JSONResponse({"status": "Сервер не запущен"}, status_code=400)
 
 
 @app.post("/restart")
@@ -90,17 +84,22 @@ async def restart_server():
 @app.post("/command")
 async def execute_command(command: str):
     """Выполняет команду через RCON"""
-    response = send_command(command)
-    return JSONResponse(content={"command": command, "response": response})
+    return JSONResponse({"command": command, "response": send_command(command)})
 
 
 @app.get("/logs")
 async def get_logs():
-    """Возвращает последние 50 строк логов, если файл есть"""
+    """Возвращает последние 50 строк логов"""
     if not os.path.exists(LOG_FILE):
-        return JSONResponse(content={"logs": []})
+        return JSONResponse({"logs": []})
 
     with open(LOG_FILE, "r", encoding="utf-8") as f:
         lines = f.readlines()[-50:]
 
-    return JSONResponse(content={"logs": lines})
+    return JSONResponse({"logs": lines})
+
+
+# ======================== Файловый менеджер ========================
+@app.get("/open_ftp")
+async def open_ftp():
+    return RedirectResponse(url="http://127.0.0.1:8001")

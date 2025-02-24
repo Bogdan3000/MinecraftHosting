@@ -32,6 +32,7 @@
         .start { background: #4caf50; color: white; }
         .stop { background: #f44336; color: white; }
         .restart { background: #ff9800; color: white; }
+        .ftp { background: #2196F3; color: white; }
         button:hover { transform: scale(1.1); opacity: 0.9; }
         input {
             padding: 10px;
@@ -64,6 +65,7 @@
         <button class="start" onclick="sendCommand('/start')">Запустить сервер</button>
         <button class="stop" onclick="sendCommand('/stop')">Выключить сервер</button>
         <button class="restart" onclick="sendCommand('/restart')">Перезапустить сервер</button>
+        <button class="ftp" onclick="openFTP()">📂 Открыть файловый менеджер</button>
         <br><br>
         <input type="text" id="cmd" placeholder="Введите команду">
         <button onclick="sendCustomCommand()">Отправить</button>
@@ -71,6 +73,7 @@
         <h2>Консоль</h2>
         <pre id="logs">Загрузка...</pre>
     </div>
+
     <script>
         const API_URL = "http://127.0.0.1:8000";
 
@@ -101,6 +104,10 @@
             const response = await fetch(API_URL + "/logs");
             const data = await response.json();
             document.getElementById("logs").innerText = data.logs ? data.logs.join("\n") : "Ошибка загрузки логов";
+        }
+
+        function openFTP() {
+            window.open("http://127.0.0.1:8000/open_ftp", "_blank");
         }
 
         setInterval(loadLogs, 2000);

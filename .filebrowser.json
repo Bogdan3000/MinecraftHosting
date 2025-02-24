@@ -1,0 +1,8 @@
+{
+  "rules": [
+    {
+      "allow": false,
+      "regex": "server\\.jar|config\\.yml|spigot\\.yml|server\\.jar|paper\\.yml"
+    }
+  ]
+}
