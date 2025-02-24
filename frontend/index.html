@@ -148,44 +148,45 @@
     </div>
 
     <script>
-        const API_URL = "http://127.0.0.1:80";
+    const API_URL = `http://${window.location.hostname}:80`;
 
-        async function sendCommand(command) {
-            let url = "";
-            if (command === "/start") url = "/start";
-            if (command === "/stop") url = "/stop";
-            if (command === "/restart") url = "/restart";
-            if (!url) return;
+    async function sendCommand(command) {
+        let url = "";
+        if (command === "/start") url = "/start";
+        if (command === "/stop") url = "/stop";
+        if (command === "/restart") url = "/restart";
+        if (!url) return;
 
-            document.getElementById("status").innerText = "Выполняется...";
-            const response = await fetch(API_URL + url, { method: "POST" });
-            const data = await response.json();
-            document.getElementById("status").innerText = "Статус: " + data.status;
-        }
+        document.getElementById("status").innerText = "Выполняется...";
+        const response = await fetch(API_URL + url, { method: "POST" });
+        const data = await response.json();
+        document.getElementById("status").innerText = "Статус: " + data.status;
+    }
 
-        async function sendCustomCommand() {
-            let cmd = document.getElementById("cmd").value;
-            if (!cmd) return alert("Введите команду!");
+    async function sendCustomCommand() {
+        let cmd = document.getElementById("cmd").value;
+        if (!cmd) return alert("Введите команду!");
 
-            const response = await fetch(API_URL + "/command?command=" + encodeURIComponent(cmd), { method: "POST" });
-            const data = await response.json();
-            document.getElementById("status").innerText = "Ответ: " + data.response;
-        }
+        const response = await fetch(API_URL + "/command?command=" + encodeURIComponent(cmd), { method: "POST" });
+        const data = await response.json();
+        document.getElementById("status").innerText = "Ответ: " + data.response;
+    }
 
-        async function loadLogs() {
-            const response = await fetch(API_URL + "/logs");
-            const data = await response.json();
-            let logBox = document.getElementById("logs");
-            logBox.innerText = data.logs ? data.logs.join("\n") : "Ошибка загрузки логов";
-            logBox.scrollTop = logBox.scrollHeight;
-        }
+    async function loadLogs() {
+        const response = await fetch(API_URL + "/logs");
+        const data = await response.json();
+        let logBox = document.getElementById("logs");
+        logBox.innerText = data.logs ? data.logs.join("\n") : "Ошибка загрузки логов";
+        logBox.scrollTop = logBox.scrollHeight;
+    }
 
-        function openFTP() {
-            window.open("http://127.0.0.1:80/open_ftp", "_blank");
-        }
+    function openFTP() {
+        window.open(`${API_URL}/open_ftp`, "_blank");
+    }
 
-        setInterval(loadLogs, 2000);
-        loadLogs();
-    </script>
+    setInterval(loadLogs, 2000);
+    loadLogs();
+</script>
+
 </body>
 </html>

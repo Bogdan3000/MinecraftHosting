@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from mcrcon import MCRcon
+import socket
 
 app = FastAPI()
 
@@ -43,7 +44,7 @@ def start_filebrowser():
     global filebrowser_process
     if filebrowser_process is None:
         filebrowser_process = subprocess.Popen(
-            [FILEBROWSER_PATH, "-p", "8001"],
+            [FILEBROWSER_PATH, "-p", "8001", "--address", "0.0.0.0"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL
         )
@@ -125,4 +126,5 @@ async def get_logs():
 # ======================== Файловый менеджер ========================
 @app.get("/open_ftp")
 async def open_ftp():
-    return RedirectResponse(url="http://127.0.0.1:8001")
+    host_ip = socket.gethostbyname(socket.gethostname())
+    return RedirectResponse(url=f"http://{host_ip}:8001")
