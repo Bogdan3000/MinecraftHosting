@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление сервером Minecraft</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; }
+        pre { background: #222; color: #0f0; padding: 10px; overflow: auto; height: 300px; text-align: left; }
+        input { padding: 8px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>Управление сервером Minecraft</h1>
+    <button onclick="sendCommand('/start')">Запустить сервер</button>
+    <button onclick="sendCommand('/stop')">Выключить сервер</button>
+    <button onclick="sendCommand('/restart')">Перезапустить сервер</button>
+    <br><br>
+    <input type="text" id="cmd" placeholder="Введите команду">
+    <button onclick="sendCustomCommand()">Отправить</button>
+    <h2>Консоль</h2>
+    <pre id="logs">Загрузка...</pre>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8000"; // Адрес сервера FastAPI
+
+        async function sendCommand(command) {
+            let url = "";
+            if (command === "/start") url = "/start";
+            if (command === "/stop") url = "/stop";
+            if (command === "/restart") url = "/restart";
+            if (!url) return;
+
+            const response = await fetch(API_URL + url, { method: "POST" });
+            const data = await response.json();
+            alert(data.status);
+        }
+
+        async function sendCustomCommand() {
+            let cmd = document.getElementById("cmd").value;
+            if (!cmd) return alert("Введите команду!");
+
+            const response = await fetch(API_URL + "/command?command=" + encodeURIComponent(cmd), { method: "POST" });
+            const data = await response.json();
+            alert("Ответ: " + data.response);
+        }
+
+        async function loadLogs() {
+            const response = await fetch(API_URL + "/logs");
+            const data = await response.json();
+            document.getElementById("logs").innerText = data.logs ? data.logs.join("\n") : "Ошибка загрузки логов";
+        }
+
+        setInterval(loadLogs, 3000);  // Обновлять логи каждые 3 секунды
+        loadLogs();
+    </script>
+</body>
+</html>
