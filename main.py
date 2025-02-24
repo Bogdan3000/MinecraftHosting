@@ -98,7 +98,7 @@ async def execute_command(command: str):
 async def get_logs():
     """Возвращает последние 50 строк логов, если файл есть"""
     if not os.path.exists(LOG_FILE):
-        return JSONResponse(content={"logs": []})  # Возвращаем пустой список вместо ошибки
+        return JSONResponse(content={"logs": []})
 
     with open(LOG_FILE, "r", encoding="utf-8") as f:
         lines = f.readlines()[-50:]
