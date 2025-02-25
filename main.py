@@ -63,6 +63,11 @@ async def shutdown_event():
         filebrowser_process.terminate()
         filebrowser_process.wait()
         filebrowser_process = None
+
+@app.head("/")
+async def read_root_head():
+    return {}
+
 @app.get("/")
 async def get_index():
     return FileResponse("frontend/index.html")
@@ -74,7 +79,7 @@ async def start_server():
     global server_process
     if server_process is None:
         server_process = subprocess.Popen(
-            [r"server\CustomJAVA\bin\java.exe", "-Xmx1024M", "-Xmx1024M", "-jar", "server.jar", "nogui"],
+            [r"server\CustomJAVA\bin\java.exe", "-Xmx6144M", "-Xms6144M", "-jar", "server.jar", "nogui"],
             cwd=SERVER_DIR,
             creationflags=subprocess.CREATE_NEW_CONSOLE
         )
@@ -127,4 +132,4 @@ async def get_logs():
 @app.get("/open_ftp")
 async def open_ftp():
     host_ip = socket.gethostbyname(socket.gethostname())
-    return RedirectResponse(url=f"http://{host_ip}:8001")
+    return RedirectResponse(url=f"https://minecraft.bohdan.lol:8001")

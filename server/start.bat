@@ -1,2 +1,2 @@
-"CustomJAVA\bin\java.exe" -Xmx1024M -Xms1024M -jar server.jar nogui
+"CustomJAVA\bin\java.exe" -Xmx6144M -Xms6144M -jar server.jar nogui
 pause
