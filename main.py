@@ -1,12 +1,11 @@
 import subprocess
 import os
 import time
-from fastapi import FastAPI, UploadFile, File
+import threading
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
-from fastapi.staticfiles import StaticFiles
 from mcrcon import MCRcon
-import socket
 
 app = FastAPI()
 
@@ -27,10 +26,8 @@ RCON_PASSWORD = "Bogdan3000"
 # Директория сервера и логов
 SERVER_DIR = "server"
 LOG_FILE = os.path.join(SERVER_DIR, "logs", "latest.log")
-FILEBROWSER_PATH = os.path.join('.', "filebrowser.exe")
 
 server_process = None
-filebrowser_process = None
 
 def send_command(command: str):
     """Отправляет команду через RCON"""
@@ -38,31 +35,14 @@ def send_command(command: str):
         with MCRcon(RCON_HOST, RCON_PASSWORD, RCON_PORT) as mcr:
             return mcr.command(command)
     except Exception as e:
-        return str("Скорее всего сервер не запущен или возникла проблема связи с сервером")
+        print(e)
+        return "Скорее всего сервер не запущен или возникла проблема связи с сервером"
 
-def start_filebrowser():
-    global filebrowser_process
-    if filebrowser_process is None:
-        filebrowser_process = subprocess.Popen(
-            [FILEBROWSER_PATH, "-p", "8001", "--address", "0.0.0.0"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
-        )
-        print(filebrowser_process.args)
-
-@app.on_event("startup")
-async def startup_event():
-    """Автоматически запускает FileBrowser при старте FastAPI"""
-    start_filebrowser()
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Останавливает FileBrowser при завершении FastAPI"""
-    global filebrowser_process
-    if filebrowser_process:
-        filebrowser_process.terminate()
-        filebrowser_process.wait()
-        filebrowser_process = None
+#@app.on_event("startup")
+#async def startup_event():
+#    """Автоматически запускает FTP-сервер при старте FastAPI"""
+#    ftp_thread = threading.Thread(target=start_ftp_server, daemon=True)
+#    ftp_thread.start()
 
 @app.head("/")
 async def read_root_head():
@@ -72,20 +52,18 @@ async def read_root_head():
 async def get_index():
     return FileResponse("frontend/index.html")
 
-
 @app.post("/start")
 async def start_server():
     """Запускает сервер"""
     global server_process
     if server_process is None:
         server_process = subprocess.Popen(
-            [r"server\CustomJAVA\bin\java.exe", "-Xmx6144M", "-Xms6144M", "-jar", "server.jar", "nogui"],
+            [r"server\CustomJAVA\bin\java.exe", "-Xmx5000M", "-Xms5000M", "-jar", "server.jar", "nogui"],
             cwd=SERVER_DIR,
             creationflags=subprocess.CREATE_NEW_CONSOLE
         )
         return JSONResponse({"status": "Сервер запущен"})
     return JSONResponse({"status": "Сервер уже работает"}, status_code=400)
-
 
 @app.post("/stop")
 async def stop_server():
@@ -102,19 +80,16 @@ async def stop_server():
         return JSONResponse({"status": "Сервер выключен, логи удалены"})
     return JSONResponse({"status": "Сервер не запущен"}, status_code=400)
 
-
 @app.post("/restart")
 async def restart_server():
     """Перезапускает сервер"""
     await stop_server()
     return await start_server()
 
-
 @app.post("/command")
 async def execute_command(command: str):
     """Выполняет команду через RCON"""
     return JSONResponse({"command": command, "response": send_command(command)})
-
 
 @app.get("/logs")
 async def get_logs():
@@ -127,9 +102,7 @@ async def get_logs():
 
     return JSONResponse({"logs": lines})
 
-
-# ======================== Файловый менеджер ========================
+# ======================== Файловый менеджер через FTP ========================
 @app.get("/open_ftp")
 async def open_ftp():
-    host_ip = socket.gethostbyname(socket.gethostname())
-    return RedirectResponse(url=f"https://minecraft.bohdan.lol:8001")
+    return RedirectResponse(url="ftp://minecraft.bohdan.lol:8001")
