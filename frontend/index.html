@@ -8,13 +8,17 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <div class="user-info" id="user-info" style="display: none;">
-        <span id="user-email"></span>
-        <button class="logout" onclick="logout()">Выйти</button>
-    </div>
+    <div class="top-bar">
+        <div class="user-info" id="user-info" style="display: none;">
+            <span id="user-email"></span>
+            <button class="logout" onclick="logout()">Выйти</button>
+        </div>
 
-    <div class="google-login" id="google-login" style="display: none;">
-        <button class="login-btn" onclick="googleLogin()">Войти через Google</button>
+        <div class="google-login" id="google-login" style="display: none;">
+            <button class="login-btn" onclick="googleLogin()">
+                <img src="/img/google.svg" alt="Google Login" style="width: 24px; height: 24px;"/>
+            </button>
+        </div>
     </div>
 
     <div class="container">

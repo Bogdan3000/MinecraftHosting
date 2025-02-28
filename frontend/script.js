@@ -60,9 +60,9 @@ function googleLogin() {
 }
 
 async function checkUserLogin() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const email = urlParams.get('email');
-    const name = urlParams.get('name');
+    // Извлекаем данные из cookies
+    const email = getCookie('user_email');
+    const name = getCookie('user_name');
 
     if (email && name) {
         userInfo = { email, name };
@@ -75,10 +75,20 @@ async function checkUserLogin() {
     }
 }
 
+// Функция для получения значения cookie по имени
+function getCookie(name) {
+    let match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? match[2] : null;
+}
+
+
 function logout() {
+    document.cookie = "user_email=; max-age=0; path=/";
+    document.cookie = "user_name=; max-age=0; path=/";
     userInfo = null;
     window.location.href = "/"; // Перезагрузка страницы
 }
+
 
 setInterval(loadLogs, 2000);
 loadLogs();

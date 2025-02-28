@@ -6,7 +6,9 @@ import secrets
 
 from fastapi import HTTPException
 from mcrcon import MCRcon
+from fastapi import Cookie
 
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi import FastAPI, Response
@@ -24,6 +26,7 @@ app.add_middleware(
 )
 
 app.mount("/static", StaticFiles(directory="frontend"), name="static")
+app.mount("/img", StaticFiles(directory="frontend/img"), name="img")
 
 RCON_HOST = "127.0.0.1"
 RCON_PORT = 25575
@@ -139,7 +142,6 @@ async def google_login():
     )
     return RedirectResponse(url)
 
-
 @app.get("/callback")
 async def google_callback(code: str, state: str):
     if state not in state_tokens:
@@ -170,4 +172,9 @@ async def google_callback(code: str, state: str):
 
     userinfo = userinfo_response.json()
 
-    return RedirectResponse(f"https://minecraft.bohdan.lol/?email={userinfo['email']}&name={userinfo['name']}")
+    # Сохраняем данные о пользователе в cookie
+    response = RedirectResponse(f"https://minecraft.bohdan.lol/")
+    response.set_cookie("user_email", userinfo['email'])
+    response.set_cookie("user_name", userinfo['name'])
+
+    return response
