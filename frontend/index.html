@@ -4,234 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Управление сервером Minecraft</title>
-    <script src="https://unpkg.com/@vkid/sdk@<3.0.0/dist-sdk/umd/index.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cascadia+Code&display=swap');
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Cascadia Code', monospace;
-            background: #373737;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 10px;
-            flex-direction: column;
-        }
-
-        .container {
-            background: #555555;
-            padding: 20px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 600px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        h1 {
-            font-size: 20px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .button-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            width: 100%;
-            justify-content: center;
-        }
-
-        button {
-            padding: 12px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: 0.3s;
-            text-transform: uppercase;
-        }
-
-        .start { background: #4CAF50; color: white; }
-        .stop { background: #F44336; color: white; }
-        .restart { background: #FFC107; color: black; }
-
-        button:hover {
-            transform: scale(1.05);
-            opacity: 0.85;
-        }
-
-        .input-group {
-            display: flex;
-            width: 100%;
-            margin-top: 15px;
-            flex-direction: row;
-            gap: 5px;
-        }
-
-        input {
-            flex: 3;
-            padding: 12px;
-            font-size: 16px;
-            border-radius: 6px;
-            border: none;
-            outline: none;
-            background: #818181;
-            color: black;
-            text-align: center;
-        }
-
-        .send-btn {
-            flex: 1;
-            background: #A1A1A1;
-            color: black;
-        }
-
-        .console {
-            background: #1e1e1e;
-            color: #ddd;
-            font-family: 'Cascadia Code', monospace;
-            padding: 15px;
-            height: 300px;
-            max-height: 50vh;
-            overflow-y: auto;
-            text-align: left;
-            border-radius: 6px;
-            white-space: pre-wrap;
-            width: 100%;
-            margin-top: 20px;
-            box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.1);
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        .status {
-            margin-top: 10px;
-            font-size: 18px;
-            text-align: center;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <!-- Google Sign-In API -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-    <h1>Авторизация через ВКонтакте</h1>
-    <div id="vk-auth-container"></div>
+    <div class="user-info" id="user-info" style="display: none;">
+        <span id="user-email"></span>
+        <button class="logout" onclick="logout()">Выйти</button>
+    </div>
 
     <div class="container">
-        <h1>Управление сервером Minecraft</h1>
-
         <div class="button-group">
             <button class="start" onclick="sendCommand('/start')">🟢 Старт</button>
             <button class="stop" onclick="sendCommand('/stop')">🔴 Стоп</button>
             <button class="restart" onclick="sendCommand('/restart')">🟠 Рестарт</button>
         </div>
 
-        <div class="input-group">
-            <input type="text" id="cmd" placeholder="Введите команду">
-            <button class="send-btn" onclick="sendCustomCommand()">▶</button>
-        </div>
+        <div class="console" id="console-output">[Система]: Консоль загружается...</div>
 
-        <p class="status" id="status">Статус: Ожидание...</p>
-        <p>Адрес FTP для FileZilla: <b>minecraft.bohdan.lol:21</b></p>
-        <div class="console" id="logs">Загрузка...</div>
+        <div class="input-group">
+            <input type="text" placeholder="Введите команду" id="command-input">
+            <button class="send-btn" onclick="sendCustomCommand()">Отправить</button>
+        </div>
     </div>
 
-    <script>
-    const API_URL = `https://minecraft.bohdan.lol:443`;
-
-    async function sendCommand(command) {
-        let url = "";
-        if (command === "/start") url = "/start";
-        if (command === "/stop") url = "/stop";
-        if (command === "/restart") url = "/restart";
-        if (!url) return;
-
-        document.getElementById("status").innerText = "Выполняется...";
-        const response = await fetch(API_URL + url, { method: "POST" });
-        const data = await response.json();
-        document.getElementById("status").innerText = "Статус: " + data.status;
-    }
-
-    async function sendCustomCommand() {
-        let cmd = document.getElementById("cmd").value;
-        if (!cmd) return alert("Введите команду!");
-
-        const response = await fetch(API_URL + "/command?command=" + encodeURIComponent(cmd), { method: "POST" });
-        const data = await response.json();
-        document.getElementById("status").innerText = "Ответ: " + data.response;
-    }
-
-    async function loadLogs() {
-        const response = await fetch(API_URL + "/logs");
-        const data = await response.json();
-        let logBox = document.getElementById("logs");
-        logBox.innerText = data.logs ? data.logs.join("\n") : "Ошибка загрузки логов";
-        logBox.scrollTop = logBox.scrollHeight;
-    }
-
-    setInterval(loadLogs, 2000);
-    loadLogs();
-
-    if ('VKIDSDK' in window) {
-      const VKID = window.VKIDSDK;
-
-      VKID.Config.init({
-        app: 53155528,
-        redirectUrl: 'https://minecraft.bohdan.lol/callback',
-        responseMode: VKID.ConfigResponseMode.Callback,
-        source: VKID.ConfigSource.LOWCODE,
-        scope: '',
-      });
-
-      const oneTap = new VKID.OneTap();
-
-      oneTap.render({
-        container: document.getElementById("vk-auth-container"),
-        showAlternativeLogin: true,
-        styles: { borderRadius: 50, width: 310 }
-      })
-      .on(VKID.WidgetEvents.ERROR, vkidOnError)
-      .on(VKID.OneTapInternalEvents.LOGIN_SUCCESS, function (payload) {
-        const code = payload.code;
-        const deviceId = payload.device_id;
-
-        VKID.Auth.exchangeCode(code, deviceId)
-          .then(vkidOnSuccess)
-          .catch(vkidOnError);
-      });
-
-      function vkidOnSuccess(data) {
-        fetch(`https://minecraft.bohdan.lol/callback?code=${data.code}`)
-            .then(response => response.json())
-            .then(result => {
-                if (result.access_token) {
-                    localStorage.setItem("vk_token", result.access_token);
-                    document.getElementById("status").innerText = `Вход выполнен! ID: ${result.user_id}`;
-                } else {
-                    console.error("Ошибка:", result);
-                }
-            })
-            .catch(console.error);
-      }
-
-      function vkidOnError(error) {
-        console.error("Ошибка VK:", error);
-      }
-    }
-    </script>
+    <script src="/static/script.js"></script>
 </body>
 </html>
