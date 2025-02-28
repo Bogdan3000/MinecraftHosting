@@ -60,13 +60,14 @@ function googleLogin() {
 }
 
 async function checkUserLogin() {
-    // Извлекаем данные из cookies
     const email = getCookie('user_email');
     const name = getCookie('user_name');
-
-    if (email && name) {
-        userInfo = { email, name };
+    const picture = getCookie('picture');
+    if (email && name && picture) {
+        userInfo = { email, name, picture };
+        const cleanPictureUrl = picture.replace(/"/g, '');
         document.getElementById('user-email').innerText = `Вход выполнен как: ${name} (${email})`;
+        document.getElementById('user-picture').src = cleanPictureUrl;
         document.getElementById('google-login').style.display = 'none';
         document.getElementById('user-info').style.display = 'block';
     } else {

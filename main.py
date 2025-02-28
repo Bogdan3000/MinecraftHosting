@@ -171,10 +171,11 @@ async def google_callback(code: str, state: str):
         )
 
     userinfo = userinfo_response.json()
-
+    print(userinfo["picture"])
     # Сохраняем данные о пользователе в cookie
     response = RedirectResponse(f"https://minecraft.bohdan.lol/")
     response.set_cookie("user_email", userinfo['email'])
     response.set_cookie("user_name", userinfo['name'])
+    response.set_cookie("picture", userinfo["picture"])
 
     return response
