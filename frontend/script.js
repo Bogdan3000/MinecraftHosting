@@ -59,6 +59,14 @@ function googleLogin() {
     window.location.href = `${API_URL}/google-login`;
 }
 
+// Функция для получения значения cookie по имени
+function getCookie(name) {
+    let match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? match[2] : null;
+}
+
+
+// Функция для проверки, если пользователь авторизован
 async function checkUserLogin() {
     const email = getCookie('user_email');
     const name = getCookie('user_name');
@@ -66,7 +74,7 @@ async function checkUserLogin() {
     if (email && name && picture) {
         userInfo = { email, name, picture };
         const cleanPictureUrl = picture.replace(/"/g, '');
-        document.getElementById('user-email').innerText = `Вход выполнен как: ${name} (${email})`;
+        document.getElementById('user-email').innerText = `Привет, ${name}`; // Используем только имя
         document.getElementById('user-picture').src = cleanPictureUrl;
         document.getElementById('google-login').style.display = 'none';
         document.getElementById('user-info').style.display = 'block';
@@ -76,19 +84,24 @@ async function checkUserLogin() {
     }
 }
 
-// Функция для получения значения cookie по имени
-function getCookie(name) {
-    let match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    return match ? match[2] : null;
+// Функция для отображения кнопки "Выйти" при клике на фото пользователя
+function toggleLogoutButton() {
+    const logoutButton = document.getElementById('logout-btn');
+    if (logoutButton.style.display === 'none') {
+        logoutButton.style.display = 'block';
+    } else {
+        logoutButton.style.display = 'none';
+    }
 }
 
-
+// Функция для выхода
 function logout() {
-    document.cookie = "user_email=; max-age=0; path=/";
-    document.cookie = "user_name=; max-age=0; path=/";
-    userInfo = null;
-    window.location.href = "/"; // Перезагрузка страницы
+    document.cookie = "user_name=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+    document.cookie = "user_email=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+    document.cookie = "picture=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+    checkUserLogin(); // Обновляем отображение
 }
+
 
 
 setInterval(loadLogs, 2000);

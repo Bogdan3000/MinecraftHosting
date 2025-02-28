@@ -113,8 +113,7 @@ input {
     transition: background-color 0.3s;
 }
 
-.top-bar .logout:hover,
-.top-bar .login-btn:hover {
+.top-bar{
     background-color: #a9a9a9;
 }
 
@@ -133,4 +132,33 @@ input {
     width: 30px;  /* Вы можете настроить размер иконки */
     height: 30px; /* Вы можете настроить размер иконки */
     object-fit: contain;
+}
+#user-picture {
+    width: 80px; /* Уменьшаем размер фотографии */
+    height: 80px;
+    border-radius: 50%; /* Делаем фото круглым */
+    object-fit: cover; /* Чтобы фото не искажалось */
+    cursor: pointer; /* Добавляем курсор, чтобы было понятно, что на фото можно кликнуть */
+}
+
+#user-info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Центрируем контейнер на экране */
+    text-align: center;
+}
+
+.logout {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.logout:hover {
+    background-color: #0056b3; /* Добавляем эффект при наведении на кнопку */
 }
