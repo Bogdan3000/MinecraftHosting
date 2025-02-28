@@ -1,4 +1,5 @@
 const API_URL = "https://minecraft.bohdan.lol:443";
+let userInfo = null; // Хранение данных о пользователе
 
 async function sendCommand(command) {
     let endpoint = "";
@@ -48,12 +49,37 @@ async function loadLogs() {
     }
 }
 
-
 function updateConsole(message) {
     const consoleOutput = document.getElementById("console-output");
     consoleOutput.innerText += `\n${message}`;
     consoleOutput.scrollTop = consoleOutput.scrollHeight;
 }
 
+function googleLogin() {
+    window.location.href = `${API_URL}/google-login`;
+}
+
+async function checkUserLogin() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email');
+    const name = urlParams.get('name');
+
+    if (email && name) {
+        userInfo = { email, name };
+        document.getElementById('user-email').innerText = `Вход выполнен как: ${name} (${email})`;
+        document.getElementById('google-login').style.display = 'none';
+        document.getElementById('user-info').style.display = 'block';
+    } else {
+        document.getElementById('google-login').style.display = 'block';
+        document.getElementById('user-info').style.display = 'none';
+    }
+}
+
+function logout() {
+    userInfo = null;
+    window.location.href = "/"; // Перезагрузка страницы
+}
+
 setInterval(loadLogs, 2000);
 loadLogs();
+checkUserLogin();

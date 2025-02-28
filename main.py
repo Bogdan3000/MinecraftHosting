@@ -171,12 +171,3 @@ async def google_callback(code: str, state: str):
     userinfo = userinfo_response.json()
 
     return RedirectResponse(f"https://minecraft.bohdan.lol/?email={userinfo['email']}&name={userinfo['name']}")
-
-@app.get("/user-info")
-async def get_user_info(request: Request):
-    """Возвращает информацию о текущем пользователе"""
-    email = request.cookies.get("user_email")  # Пример получения email из cookies
-    if not email:
-        raise HTTPException(status_code=400, detail="Пользователь не авторизован")
-
-    return JSONResponse({"email": email})

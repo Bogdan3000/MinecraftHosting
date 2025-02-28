@@ -6,13 +6,15 @@
     <title>Управление сервером Minecraft</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/static/styles.css">
-    <!-- Google Sign-In API -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <div class="user-info" id="user-info" style="display: none;">
         <span id="user-email"></span>
         <button class="logout" onclick="logout()">Выйти</button>
+    </div>
+
+    <div class="google-login" id="google-login" style="display: none;">
+        <button class="login-btn" onclick="googleLogin()">Войти через Google</button>
     </div>
 
     <div class="container">
