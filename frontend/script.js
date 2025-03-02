@@ -8,7 +8,23 @@ async function sendCommand(command) {
     if (command === "/restart") endpoint = "/restart";
     if (!endpoint) return;
 
+    // Добавляем эффект нажатия кнопки
+    const buttonMap = {
+        "/start": document.querySelector(".start"),
+        "/stop": document.querySelector(".stop"),
+        "/restart": document.querySelector(".restart")
+    };
+
+    // Анимация нажатия
+    const button = buttonMap[command];
+    if (button) {
+        button.classList.add("pressed");
+        setTimeout(() => button.classList.remove("pressed"), 300);
+    }
+
     try {
+        updateConsole(`[Система]: Отправка команды ${command.substring(1)}...`);
+
         const response = await fetch(API_URL + endpoint, {
             method: "POST",
             credentials: "include" // Важно для отправки cookie сессии
@@ -31,7 +47,14 @@ async function sendCustomCommand() {
     let cmd = document.getElementById("command-input").value.trim();
     if (!cmd) return alert("Введите команду!");
 
+    // Анимация нажатия кнопки
+    const button = document.querySelector(".send-btn");
+    button.classList.add("pressed");
+    setTimeout(() => button.classList.remove("pressed"), 300);
+
     try {
+        updateConsole(`> ${cmd}`);
+
         const response = await fetch(`${API_URL}/command?command=${encodeURIComponent(cmd)}`, {
             method: "POST",
             credentials: "include" // Важно для отправки cookie сессии
@@ -44,7 +67,10 @@ async function sendCustomCommand() {
         }
 
         const data = await response.json();
-        updateConsole(`> ${cmd}\n${data.response}`);
+        updateConsole(data.response);
+
+        // Очищаем поле ввода после успешной отправки
+        document.getElementById("command-input").value = "";
     } catch (error) {
         updateConsole("[Ошибка]: Команда не отправлена");
     }
@@ -83,12 +109,30 @@ async function loadLogs() {
 
 function updateConsole(message) {
     const consoleOutput = document.getElementById("console-output");
+
+    // Добавляем анимацию для новых сообщений
+    const messageElement = document.createElement("div");
+    messageElement.className = "console-message";
+    messageElement.textContent = message;
+    messageElement.style.opacity = "0";
+
+    // Добавляем сообщение с сохранением формата переноса строк
     consoleOutput.innerText += `\n${message}`;
-    consoleOutput.scrollTop = consoleOutput.scrollHeight;
+
+    // Прокручиваем вниз с плавной анимацией
+    consoleOutput.scrollTo({
+        top: consoleOutput.scrollHeight,
+        behavior: "smooth"
+    });
 }
 
 function googleLogin() {
-    window.location.href = `${API_URL}/google-login`;
+    // Анимация нажатия
+    const loginBtn = document.querySelector(".login-btn");
+    loginBtn.classList.add("pressed");
+    setTimeout(() => {
+        window.location.href = `${API_URL}/google-login`;
+    }, 300);
 }
 
 // Функция для проверки, если пользователь авторизован через API
@@ -111,18 +155,14 @@ async function checkUserLogin() {
 
             document.getElementById('user-picture').src = data.picture;
             document.getElementById('google-login').style.display = 'none';
-            document.getElementById('user-info').style.display = 'block';
-            greetingText.innerText = `Привет, ${data.name}`;
+            document.getElementById('user-info').style.display = 'flex'; // Изменено на flex для улучшения выравнивания
+            greetingText.innerText = `Привет, ${data.name}!`;
 
             // Если пользователь авторизован, но не в списке разрешенных
             if (!data.authorized) {
                 updateConsole(`[Система]: ${data.message || "У вас нет доступа к управлению сервером. Обратитесь к bohdan.lol."}`);
-
-                // Можно также отключить кнопки для неавторизованных пользователей
                 disableControls();
             } else {
-
-                // Включаем элементы управления
                 enableControls();
             }
         } else {
@@ -166,27 +206,62 @@ function enableControls() {
 // Функция для отображения кнопки "Выйти" при клике на фото пользователя
 function toggleLogoutButton() {
     const logoutButton = document.getElementById('logout-btn');
-    if (logoutButton.style.display === 'none') {
-        logoutButton.style.display = 'block';
+
+    // Используем класс вместо inline стиля для плавной анимации
+    if (logoutButton.classList.contains('visible')) {
+        logoutButton.classList.remove('visible');
     } else {
-        logoutButton.style.display = 'none';
+        logoutButton.classList.add('visible');
     }
 }
+
+// Закрывать меню при клике за его пределами
+document.addEventListener('click', function(event) {
+    const userPicture = document.getElementById('user-picture');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    if (event.target !== userPicture && event.target !== logoutBtn) {
+        logoutBtn.classList.remove('visible');
+    }
+});
 
 // Функция для выхода через API
 async function logout() {
     try {
+        const logoutBtn = document.getElementById('logout-btn');
+        logoutBtn.classList.add('pressed');
+
         await fetch(`${API_URL}/api/logout`, {
             method: "POST",
             credentials: "include"
         });
 
-        // Обновляем отображение
-        checkUserLogin();
+        // Добавляем небольшую задержку для анимации
+        setTimeout(() => {
+            // Обновляем отображение
+            checkUserLogin();
+            // Сбрасываем консоль
+            document.getElementById("console-output").innerText = "[Система]: Вы вышли из системы. Авторизуйтесь снова для управления сервером.";
+            // Скрываем кнопку выхода
+            logoutBtn.classList.remove('visible');
+        }, 300);
     } catch (error) {
         console.error("Ошибка при выходе:", error);
     }
 }
+
+// Обработчик для отправки команды по нажатию Enter
+document.getElementById('command-input').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        sendCustomCommand();
+    }
+});
+
+// Добавляем анимацию при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    // Установим начальный текст консоли
+    document.getElementById("console-output").innerText = "[Система]: Консоль загружается...";
+});
 
 setInterval(loadLogs, 2000);
 loadLogs();

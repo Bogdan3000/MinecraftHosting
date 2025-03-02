@@ -6,20 +6,10 @@
     <title>Управление сервером Minecraft</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/static/styles.css">
-    <style>
-        /* Добавьте этот стиль для эффекта hover на кнопке логина Google */
-        .google-login .login-btn:hover {
-            background-color: #e0e0e0; /* Цвет при наведении */
-        }
-
-        /* Убедитесь, что фото пользователя не выходит за пределы страницы */
-        #user-info {
-            max-width: 100%; /* Ограничиваем ширину */
-            overflow: hidden; /* Скрываем переполнение */
-        }
-    </style>
+    <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
 </head>
 <body>
+    <div class="overlay" id="overlay"></div>
     <div class="top-bar">
         <div class="google-login" id="google-login" style="display: none;">
             <button class="login-btn" onclick="googleLogin()">
@@ -31,26 +21,33 @@
             <div id="user-email" style="font-size: 24px; margin-top: 10px;"></div>
             <button class="logout" id="logout-btn" style="display: none; margin-top: 10px;" onclick="logout()">
                 <img src="/img/logout.svg" alt="Logout Icon" />Выйти
-</button>
-
+            </button>
         </div>
     </div>
 
     <div class="container">
-        <div id="greeting" style="text-align: center; margin-bottom: 20px;">
-            <h2 id="greeting-text">Привет, пользователь!</h2> <!-- Добавьте текст приветствия -->
+        <div id="greeting">
+            <h2 id="greeting-text">Привет, пользователь!</h2>
         </div>
         <div class="button-group">
-            <button class="start" onclick="sendCommand('/start')">🟢 Старт</button>
-            <button class="stop" onclick="sendCommand('/stop')">🔴 Стоп</button>
-            <button class="restart" onclick="sendCommand('/restart')">🟠 Рестарт</button>
+            <button class="start" onclick="sendCommand('/start')">
+                <i class="fas fa-play"></i> Старт
+            </button>
+            <button class="stop" onclick="sendCommand('/stop')">
+                <i class="fas fa-stop"></i> Стоп
+            </button>
+            <button class="restart" onclick="sendCommand('/restart')">
+                <i class="fas fa-sync-alt"></i> Рестарт
+            </button>
         </div>
 
         <div class="console" id="console-output">[Система]: Консоль загружается...</div>
 
         <div class="input-group">
-            <input type="text" placeholder="Введите команду" id="command-input">
-            <button class="send-btn" onclick="sendCustomCommand()">Отправить</button>
+            <input type="text" placeholder="Введите команду..." id="command-input">
+            <button class="send-btn" onclick="sendCustomCommand()">
+                <i class="fas fa-paper-plane"></i> Отправить
+            </button>
         </div>
     </div>
 
