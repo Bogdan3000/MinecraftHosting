@@ -55,7 +55,6 @@ button {
 
 button:hover {
     transform: scale(1.08);
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
 .console {
@@ -90,21 +89,15 @@ input {
 
 .send-btn { flex: 1; background: #aaa; color: black; }
 
-.top-bar .user-info,
-.top-bar .google-login {
-    display: flex;
-    align-items: center;
-}
-
-.top-bar .user-info span {
+.user-info span {
     font-size: 14px;
     margin-right: 10px;
 }
 
 .top-bar .logout,
 .top-bar .login-btn {
-    background-color: #3498db;
-    color: white;
+    background-color: #ffffff;
+    color: #000000;
     padding: 8px 15px;
     border-radius: 5px;
     font-size: 14px;
@@ -113,52 +106,33 @@ input {
     transition: background-color 0.3s;
 }
 
-.top-bar{
-    background-color: #a9a9a9;
-}
-
 .google-login .login-btn {
     background-color: white;
     border: none;
     padding: 8px;
-    border-radius: 50%; /* Это делает кнопку круглой */
+    border-radius: 50%;
     display: inline-flex;
     justify-content: center;
     align-items: center;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
-
-.google-login .google-icon {
-    width: 30px;  /* Вы можете настроить размер иконки */
-    height: 30px; /* Вы можете настроить размер иконки */
-    object-fit: contain;
-}
 #user-picture {
-    width: 80px; /* Уменьшаем размер фотографии */
-    height: 80px;
+    width: 50px; /* Уменьшаем размер фотографии */
+    height: 50px;
     border-radius: 50%; /* Делаем фото круглым */
     object-fit: cover; /* Чтобы фото не искажалось */
     cursor: pointer; /* Добавляем курсор, чтобы было понятно, что на фото можно кликнуть */
 }
 
+
+/* Убедитесь, что фото пользователя не выходит за пределы страницы */
 #user-info {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); /* Центрируем контейнер на экране */
-    text-align: center;
+    max-width: 100%; /* Ограничиваем ширину */
+    overflow: hidden; /* Скрываем переполнение */
 }
 
-.logout {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.logout:hover {
-    background-color: #0056b3; /* Добавляем эффект при наведении на кнопку */
+.logout img {
+    width: 20px; /* Ширина иконки */
+    height: 20px; /* Высота иконки */
+    margin-right: 8px; /* Отступ между иконкой и текстом */
 }

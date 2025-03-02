@@ -6,24 +6,40 @@
     <title>Управление сервером Minecraft</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        /* Добавьте этот стиль для эффекта hover на кнопке логина Google */
+        .google-login .login-btn:hover {
+            background-color: #e0e0e0; /* Цвет при наведении */
+        }
+
+        /* Убедитесь, что фото пользователя не выходит за пределы страницы */
+        #user-info {
+            max-width: 100%; /* Ограничиваем ширину */
+            overflow: hidden; /* Скрываем переполнение */
+        }
+    </style>
 </head>
 <body>
     <div class="top-bar">
-        <div id="user-info" style="display: none; text-align: center;">
-            <img id="user-picture" src="" alt="User Photo" onclick="toggleLogoutButton()" />
-            <div id="user-email" style="font-size: 24px; margin-top: 10px;"></div>
-            <button class="logout" id="logout-btn" style="display: none; margin-top: 10px;" onclick="logout()">Выйти</button>
-        </div>
-
-
         <div class="google-login" id="google-login" style="display: none;">
             <button class="login-btn" onclick="googleLogin()">
                 <img src="/img/google.svg" alt="Google Login" style="width: 24px; height: 24px;"/>
             </button>
         </div>
+        <div id="user-info" style="display: none; text-align: center;">
+            <img id="user-picture" src="" alt="User Photo" onclick="toggleLogoutButton()" />
+            <div id="user-email" style="font-size: 24px; margin-top: 10px;"></div>
+            <button class="logout" id="logout-btn" style="display: none; margin-top: 10px;" onclick="logout()">
+                <img src="/img/logout.svg" alt="Logout Icon" />Выйти
+</button>
+
+        </div>
     </div>
 
     <div class="container">
+        <div id="greeting" style="text-align: center; margin-bottom: 20px;">
+            <h2 id="greeting-text">Привет, пользователь!</h2> <!-- Добавьте текст приветствия -->
+        </div>
         <div class="button-group">
             <button class="start" onclick="sendCommand('/start')">🟢 Старт</button>
             <button class="stop" onclick="sendCommand('/stop')">🔴 Стоп</button>
